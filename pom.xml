@@ -6,8 +6,10 @@
     <groupId>net.countercraft</groupId>
 
     <artifactId>Movecraft-ShipRules</artifactId>
-    <version>ALPHA-1.0</version>
+    <version>1.a.1</version>
+
     <build>
+        <finalName>Movecraft-ShipRules</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -17,7 +19,36 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <targetPath>.</targetPath>
+                <directory>.</directory>
+                <includes>
+                    <include>LICENSE.md</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
     <dependencies>
@@ -33,7 +64,7 @@
         <dependency>
             <groupId>net.countercraft.movecraft</groupId>
             <artifactId>Movecraft</artifactId>
-            <version>7.0.0</version>
+            <version>LATEST</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../Movecraft/target/Movecraft.jar</systemPath>
         </dependency>

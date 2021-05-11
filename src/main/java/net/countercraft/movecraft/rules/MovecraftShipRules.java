@@ -26,7 +26,7 @@ public class MovecraftShipRules extends JavaPlugin {
         }
 
         File[] ruleFiles = rulesDirectory.listFiles();
-        if (ruleFiles.length == 0) {
+        if (ruleFiles == null || ruleFiles.length == 0) {
             logger.log(Level.INFO, "No files found in rules directory, disabling...");
             this.setEnabled(false);
             return;

@@ -2,6 +2,7 @@ package net.countercraft.movecraft.rules;
 
 import net.countercraft.movecraft.craft.CraftType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -15,35 +16,8 @@ public class MovecraftShipRules extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        reloadTypes();
 
-        //find our rules directory
-        File rulesDirectory = new File(getDataFolder() + "/rules");
-        //if there is none, make it and disable the plugin
-        if(rulesDirectory.mkdirs()) {
-            logger.log(Level.INFO, "No rules directory found, creating one and disabling...");
-            this.setEnabled(false);
-            return;
-        }
-
-        File[] ruleFiles = rulesDirectory.listFiles();
-        if (ruleFiles.length == 0) {
-            logger.log(Level.INFO, "No files found in rules directory, disabling...");
-            this.setEnabled(false);
-            return;
-        }
-
-        //files should have type '.rules'
-        for(File f : ruleFiles) {
-            if (!f.getName().endsWith(".rules")) {
-                continue;
-            }
-            try {
-                TypeRules rules = new TypeRules(f);
-                rulesHashMap.putIfAbsent(rules.getApplicableType(), rules);
-            } catch (TypeRules.RulesNotFoundException e) {
-                logger.log(Level.WARNING, e.getMessage());
-            }
-        }
         getServer().getPluginManager().registerEvents(new PilotListener(), this);
     }
 
@@ -59,7 +33,43 @@ public class MovecraftShipRules extends JavaPlugin {
         return instance;
     }
 
-    public TypeRules getRulesByType(CraftType c) {
-        return rulesHashMap.get(c);
+    @Nullable
+    public TypeRules getRulesByType(CraftType t) {
+        return rulesHashMap.get(t);
+    }
+
+    public void reloadTypes() {
+        rulesHashMap.clear();
+
+        //find our rules directory
+        File rulesDirectory = new File(getDataFolder() + "/rules");
+
+        //if there is none, make it and disable the plugin
+        if(rulesDirectory.mkdirs()) {
+            logger.log(Level.INFO, "No rules directory found, creating one and disabling...");
+            setEnabled(false);
+            return;
+        }
+
+        File[] ruleFiles = rulesDirectory.listFiles();
+        if (ruleFiles == null || ruleFiles.length == 0) {
+            logger.log(Level.INFO, "No files found in rules directory, disabling...");
+            setEnabled(false);
+            return;
+        }
+
+        //files should have type '.rules'
+        for(File f : ruleFiles) {
+            if (!f.getName().endsWith(".rules"))
+                continue;
+
+            try {
+                TypeRules rules = new TypeRules(f);
+                rulesHashMap.putIfAbsent(rules.getApplicableType(), rules);
+            }
+            catch (TypeRules.RulesNotFoundException e) {
+                logger.log(Level.WARNING, e.getMessage());
+            }
+        }
     }
 }

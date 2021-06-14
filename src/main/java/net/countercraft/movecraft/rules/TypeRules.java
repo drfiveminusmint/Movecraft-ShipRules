@@ -38,7 +38,7 @@ public class TypeRules {
             input.close();
         }
         catch (IOException e) {
-            throw new RulesNotFoundException("Error for file '" + f.getAbsolutePath()+"': IOException Encountered.");
+            throw new RulesNotFoundException("Error for file '" + f.getAbsolutePath() + "': IOException Encountered.");
         }
 
         maxLengthToWidthRatio = doubleFromObject(data.getOrDefault("maxLengthToWidthRatio", -1.0));
@@ -138,7 +138,7 @@ public class TypeRules {
         return requireCruiseSignAlignment;
     }
 
-    public class RulesNotFoundException extends RuntimeException {
+    public static class RulesNotFoundException extends RuntimeException {
         public RulesNotFoundException(String s) {
             super(s);
         }

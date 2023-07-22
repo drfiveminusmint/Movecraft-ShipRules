@@ -19,6 +19,7 @@ public class MovecraftShipRules extends JavaPlugin {
         reloadTypes();
 
         getServer().getPluginManager().registerEvents(new PilotListener(), this);
+        getServer().getPluginManager().registerEvents(new TypesReloadedListener(), this);
     }
 
     @Override

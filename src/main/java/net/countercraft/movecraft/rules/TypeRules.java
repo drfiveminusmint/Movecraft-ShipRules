@@ -1,143 +1,63 @@
 package net.countercraft.movecraft.rules;
 
-import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.type.CraftType;
+import net.countercraft.movecraft.craft.type.property.BooleanProperty;
+import net.countercraft.movecraft.craft.type.property.DoubleProperty;
+import net.countercraft.movecraft.craft.type.property.IntegerProperty;
 
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.bukkit.NamespacedKey;
 
 public class TypeRules {
-    private final Set<CraftType> applicableTypes;
-    private final double maxLengthToWidthRatio;
-    private final double minLengthToWidthRatio;
-    private final double maxLengthToHeightRatio;
-    private final double minLengthToHeightRatio;
-    private final double maxWidthToHeightRatio;
-    private final double minWidthToHeightRatio;
-    private final int maxAbsoluteLength;
-    private final int minAbsoluteLength;
-    private final int maxAbsoluteWidth;
-    private final int minAbsoluteWidth;
-    private final int maxAbsoluteHeight;
-    private final int minAbsoluteHeight;
-    private final boolean requireCruiseSignAlignment;
+    public static final NamespacedKey MAX_LENGTH_TO_WIDTH_RATIO = new NamespacedKey("movecraft-shiprules",
+            "max_length_to_width_ratio");
+    public static final NamespacedKey MIN_LENGTH_TO_WIDTH_RATIO = new NamespacedKey("movecraft-shiprules",
+            "min_length_to_width_ratio");
+    public static final NamespacedKey MAX_LENGTH_TO_HEIGHT_RATIO = new NamespacedKey("movecraft-shiprules",
+            "max_length_to_height_ratio");
+    public static final NamespacedKey MIN_LENGTH_TO_HEIGHT_RATIO = new NamespacedKey("movecraft-shiprules",
+            "min_length_to_height_ratio");
+    public static final NamespacedKey MAX_WIDTH_TO_HEIGHT_RATIO = new NamespacedKey("movecraft-shiprules",
+            "max_width_to_height_ratio");
+    public static final NamespacedKey MIN_WIDTH_TO_HEIGHT_RATIO = new NamespacedKey("movecraft-shiprules",
+            "min_width_to_height_ratio");
 
-    public TypeRules(File f) {
-        // This code is cannibalized from the movecraft type code
-        final Map<Object, Object> data;
-        try {
-            InputStream input = new FileInputStream(f);
-            Yaml yaml = new Yaml();
-            data = yaml.load(input);
-            input.close();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Error for file '" + f.getAbsolutePath() + "': IOException Encountered.");
-        }
+    public static final NamespacedKey MAX_ABSOLUTE_LENGTH = new NamespacedKey("movecraft-shiprules",
+            "max_absolute_length");
+    public static final NamespacedKey MIN_ABSOLUTE_LENGTH = new NamespacedKey("movecraft-shiprules",
+            "min_absolute_length");
+    public static final NamespacedKey MAX_ABSOLUTE_WIDTH = new NamespacedKey("movecraft-shiprules",
+            "max_absolute_width");
+    public static final NamespacedKey MIN_ABSOLUTE_WIDTH = new NamespacedKey("movecraft-shiprules",
+            "min_absolute_width");
+    public static final NamespacedKey MAX_ABSOLUTE_HEIGHT = new NamespacedKey("movecraft-shiprules",
+            "max_absolute_height");
+    public static final NamespacedKey MIN_ABSOLUTE_HEIGHT = new NamespacedKey("movecraft-shiprules",
+            "min_absolute_height");
 
-        applicableTypes = new HashSet<>();
-        Object section = data.get("applicableTypes");
-        if (!(section instanceof List))
-            throw new IllegalArgumentException("Unable to load applicable types in " + f.getName());
+    public static final NamespacedKey REQUIRE_CRUISE_SIGN_ALIGNMENT = new NamespacedKey("movecraft-shiprules",
+            "require_cruise_sign_alignment");
 
-        for (Object o : (List<?>) section) {
-            if (!(o instanceof String))
-                throw new IllegalArgumentException("Unable to load applicable type '" + o + "' in " + f.getName());
+    public static void register() {
+        CraftType.registerProperty(
+                new DoubleProperty("maxLengthToWidthRatio", MAX_LENGTH_TO_HEIGHT_RATIO, type -> -1.0));
+        CraftType
+                .registerProperty(new DoubleProperty("minLengthToWidthRatio", MIN_LENGTH_TO_HEIGHT_RATIO, type -> -1.0));
+        CraftType.registerProperty(
+                new DoubleProperty("maxLengthToHeightRatio", MAX_LENGTH_TO_WIDTH_RATIO, type -> -1.0));
+        CraftType
+                .registerProperty(new DoubleProperty("minLengthToHeightRatio", MIN_LENGTH_TO_WIDTH_RATIO, type -> -1.0));
+        CraftType.registerProperty(
+                new DoubleProperty("maxWidthToHeightRatio", MAX_WIDTH_TO_HEIGHT_RATIO, type -> -1.0));
+        CraftType.registerProperty(new DoubleProperty("minWidthToHeightRatio", MIN_WIDTH_TO_HEIGHT_RATIO, type -> -1.0));
 
-            String s = (String) o;
-            try {
-                CraftType type = CraftManager.getInstance().getCraftTypeFromString(s);
-                applicableTypes.add(type);
-            } catch (TypeNotPresentException e) {
-                throw new IllegalArgumentException(
-                        "Could not parse type name '" + s + "' in file " + f.getName());
-            }
-        }
+        CraftType.registerProperty(new IntegerProperty("maxAbsoluteLength", MAX_ABSOLUTE_LENGTH, type -> -1));
+        CraftType.registerProperty(new IntegerProperty("minAbsoluteLength", MIN_ABSOLUTE_LENGTH, type -> -1));
+        CraftType.registerProperty(new IntegerProperty("maxAbsoluteWidth", MAX_ABSOLUTE_WIDTH, type -> -1));
+        CraftType.registerProperty(new IntegerProperty("minAbsoluteWidth", MIN_ABSOLUTE_WIDTH, type -> -1));
+        CraftType.registerProperty(new IntegerProperty("maxAbsoluteHeight", MAX_ABSOLUTE_HEIGHT, type -> -1));
+        CraftType.registerProperty(new IntegerProperty("minAbsoluteHeight", MIN_ABSOLUTE_HEIGHT, type -> -1));
 
-        maxLengthToWidthRatio = doubleFromObject(data.getOrDefault("maxLengthToWidthRatio", -1.0));
-        minLengthToWidthRatio = doubleFromObject(data.getOrDefault("minLengthToWidthRatio", -1.0));
-        maxLengthToHeightRatio = doubleFromObject(data.getOrDefault("maxLengthToHeightRatio", -1.0));
-        minLengthToHeightRatio = doubleFromObject(data.getOrDefault("minLengthToHeightRatio", -1.0));
-        maxWidthToHeightRatio = doubleFromObject(data.getOrDefault("maxWidthToHeightRatio", -1.0));
-        minWidthToHeightRatio = doubleFromObject(data.getOrDefault("minWidthToHeightRatio", -1.0));
-
-        maxAbsoluteHeight = (int) data.getOrDefault("maxAbsoluteHeight", -1);
-        minAbsoluteHeight = (int) data.getOrDefault("minAbsoluteHeight", -1);
-        maxAbsoluteLength = (int) data.getOrDefault("maxAbsoluteLength", -1);
-        minAbsoluteLength = (int) data.getOrDefault("minAbsoluteLength", -1);
-        maxAbsoluteWidth = (int) data.getOrDefault("maxAbsoluteWidth", -1);
-        minAbsoluteWidth = (int) data.getOrDefault("minAbsoluteWidth", -1);
-
-        requireCruiseSignAlignment = (boolean) data.getOrDefault("requireCruiseSignAlignment", false);
-    }
-
-    private double doubleFromObject(Object obj) {
-        if (obj instanceof Integer) {
-            return ((Integer) obj).doubleValue();
-        }
-        return (Double) obj;
-    }
-
-    public Set<CraftType> getApplicableTypes() {
-        return applicableTypes;
-    }
-
-    public double getMaxLengthToWidthRatio() {
-        return maxLengthToWidthRatio;
-    }
-
-    public double getMinLengthToWidthRatio() {
-        return minLengthToWidthRatio;
-    }
-
-    public double getMaxLengthToHeightRatio() {
-        return maxLengthToHeightRatio;
-    }
-
-    public double getMinLengthToHeightRatio() {
-        return minLengthToHeightRatio;
-    }
-
-    public double getMaxWidthToHeightRatio() {
-        return maxWidthToHeightRatio;
-    }
-
-    public double getMinWidthToHeightRatio() {
-        return minWidthToHeightRatio;
-    }
-
-    public int getMaxAbsoluteLength() {
-        return maxAbsoluteLength;
-    }
-
-    public int getMinAbsoluteLength() {
-        return minAbsoluteLength;
-    }
-
-    public int getMaxAbsoluteWidth() {
-        return maxAbsoluteWidth;
-    }
-
-    public int getMinAbsoluteWidth() {
-        return minAbsoluteWidth;
-    }
-
-    public int getMaxAbsoluteHeight() {
-        return maxAbsoluteHeight;
-    }
-
-    public int getMinAbsoluteHeight() {
-        return minAbsoluteHeight;
-    }
-
-    public boolean getRequireCruiseSignAlignment() {
-        return requireCruiseSignAlignment;
+        CraftType.registerProperty(
+                new BooleanProperty("requireCruiseSignAlignment", REQUIRE_CRUISE_SIGN_ALIGNMENT, type -> false));
     }
 }

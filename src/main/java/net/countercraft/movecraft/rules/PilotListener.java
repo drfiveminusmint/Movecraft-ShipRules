@@ -32,9 +32,6 @@ public class PilotListener implements Listener {
             return;
 
         CraftType type = craft.getType();
-        TypeRules rules = MovecraftShipRules.getInstance().getRulesByType(type);
-        if (rules == null)
-            return;
 
         // First, find which direction is 'forward.' This value is initialized to avoid
         // a NPE later.
@@ -45,6 +42,7 @@ public class PilotListener implements Listener {
         if (type.getBoolProperty(CraftType.CRUISE_ON_PILOT)) {
             direction = craft.getCruiseDirection();
         } else {
+            boolean requireCruiseSignAlignment = type.getBoolProperty(TypeRules.REQUIRE_CRUISE_SIGN_ALIGNMENT);
             for (MovecraftLocation location : craft.getHitBox()) {
                 Block block = location.toBukkit(craft.getWorld()).getBlock();
                 if (!Tag.WALL_SIGNS.isTagged(block.getType()))
@@ -66,7 +64,7 @@ public class PilotListener implements Listener {
                 CruiseDirection currentDirection = CruiseDirection.fromBlockFace(((Directional) data).getFacing());
                 if (direction == CruiseDirection.NONE) {
                     direction = currentDirection;
-                } else if (direction != currentDirection && rules.getRequireCruiseSignAlignment()) {
+                } else if (direction != currentDirection && requireCruiseSignAlignment) {
                     craft.getAudience().sendMessage(Component.text(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                             + "Detection failed: All cruise signs must face the same way."));
                     event.setCancelled(true);
@@ -75,7 +73,7 @@ public class PilotListener implements Listener {
         }
 
         if (direction != CruiseDirection.NONE) {
-            if (!checkDimensions(craft.getHitBox(), direction, type, rules, craft.getAudience())) {
+            if (!checkDimensions(craft.getHitBox(), direction, type, craft.getAudience())) {
                 event.setCancelled(true);
                 return;
             }
@@ -96,7 +94,7 @@ public class PilotListener implements Listener {
         return compare <= upper || upper == -1.0;
     }
 
-    private boolean checkDimensions(HitBox box, CruiseDirection direction, CraftType type, TypeRules rules, Audience audience) {
+    private boolean checkDimensions(HitBox box, CruiseDirection direction, CraftType type, Audience audience) {
         if (box.isEmpty())
             return true;
 
@@ -119,39 +117,45 @@ public class PilotListener implements Listener {
         String craftTypeName = type.getStringProperty(CraftType.NAME);
 
         // check absolute dimensions
-        if (!intIsInRange(length, rules.getMinAbsoluteLength(), rules.getMaxAbsoluteLength())) {
-            if (rules.getMinAbsoluteLength() == rules.getMaxAbsoluteLength()) {
+        int min = type.getIntProperty(TypeRules.MIN_ABSOLUTE_LENGTH);
+        int max = type.getIntProperty(TypeRules.MAX_ABSOLUTE_LENGTH);
+        if (!intIsInRange(length, min, max)) {
+            if (min == max) {
                 audience.sendMessage(Component.text(ChatUtils.MOVECRAFT_COMMAND_PREFIX + String.format(
                         "Your craft has an invalid length! For crafts of type %s, length must be %d, but yours is %d long.",
-                        craftTypeName, rules.getMinAbsoluteLength(), length)));
+                        craftTypeName, min, length)));
             } else {
                 audience.sendMessage(Component.text(String.format(
                         "Your craft has an invalid length! For crafts of type %s, length must be between %d and %d, but yours is %d long.",
-                        craftTypeName, rules.getMinAbsoluteLength(), rules.getMaxAbsoluteLength(), length)));
+                        craftTypeName, min, max, length)));
             }
             return false;
         }
-        if (!intIsInRange(width, rules.getMinAbsoluteWidth(), rules.getMaxAbsoluteWidth())) {
-            if (rules.getMinAbsoluteWidth() == rules.getMaxAbsoluteWidth()) {
+        min = type.getIntProperty(TypeRules.MIN_ABSOLUTE_WIDTH);
+        max = type.getIntProperty(TypeRules.MAX_ABSOLUTE_WIDTH);
+        if (!intIsInRange(width, min, max)) {
+            if (min == max) {
                 audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                         + "Your craft has an invalid width! For crafts of type %s, width must be %d, but yours is %d wide.",
-                        craftTypeName, rules.getMinAbsoluteWidth(), width)));
+                        craftTypeName, min, width)));
             } else {
                 audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                         + "Your craft has an invalid width! For crafts of type %s, width must be between %d and %d, but yours is %d wide.",
-                        craftTypeName, rules.getMinAbsoluteWidth(), rules.getMaxAbsoluteWidth(), width)));
+                        craftTypeName, min, max, width)));
             }
             return false;
         }
-        if (!intIsInRange(height, rules.getMinAbsoluteHeight(), rules.getMaxAbsoluteHeight())) {
-            if (rules.getMinAbsoluteLength() == rules.getMaxAbsoluteLength()) {
+        min = type.getIntProperty(TypeRules.MIN_ABSOLUTE_HEIGHT);
+        max = type.getIntProperty(TypeRules.MAX_ABSOLUTE_HEIGHT);
+        if (!intIsInRange(height, min, max)) {
+            if (min == max) {
                 audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                         + "Your craft has an invalid height! For crafts of type %s, height must be %d, but yours is %d tall.",
-                        craftTypeName, rules.getMinAbsoluteHeight(), height)));
+                        craftTypeName, min, height)));
             } else {
                 audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                         + "Your craft has an invalid height! For crafts of type %s, height must be between %d and %d, but yours is %d tall.",
-                        craftTypeName, rules.getMinAbsoluteHeight(), rules.getMaxAbsoluteHeight(), height)));
+                        craftTypeName, min, max, height)));
             }
             return false;
         }
@@ -161,22 +165,28 @@ public class PilotListener implements Listener {
         double lhr = ((double) length) / height;
         double whr = ((double) width) / height;
 
-        if (!doubleIsInRange(lwr, rules.getMinLengthToWidthRatio(), rules.getMaxLengthToWidthRatio())) {
+        double low = type.getDoubleProperty(TypeRules.MIN_LENGTH_TO_WIDTH_RATIO);
+        double high = type.getDoubleProperty(TypeRules.MAX_LENGTH_TO_WIDTH_RATIO);
+        if (!doubleIsInRange(lwr, low, high)) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                     + "Your craft has an invalid length-to-width ratio! For crafts of type %s, length:width must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
-                    craftTypeName, rules.getMinLengthToWidthRatio(), rules.getMaxLengthToWidthRatio(), lwr)));
+                    craftTypeName, low, high, lwr)));
             return false;
         }
-        if (!doubleIsInRange(lhr, rules.getMinLengthToHeightRatio(), rules.getMaxLengthToHeightRatio())) {
+        low = type.getDoubleProperty(TypeRules.MIN_LENGTH_TO_HEIGHT_RATIO);
+        high = type.getDoubleProperty(TypeRules.MAX_LENGTH_TO_HEIGHT_RATIO);
+        if (!doubleIsInRange(lhr, low, high)) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                     + "Your craft has an invalid length-to-height ratio! For crafts of type %s, length:height must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
-                    craftTypeName, rules.getMinLengthToHeightRatio(), rules.getMaxLengthToHeightRatio(), lhr)));
+                    craftTypeName, low, high, lhr)));
             return false;
         }
-        if (!doubleIsInRange(whr, rules.getMinWidthToHeightRatio(), rules.getMaxWidthToHeightRatio())) {
+        low = type.getDoubleProperty(TypeRules.MIN_WIDTH_TO_HEIGHT_RATIO);
+        high = type.getDoubleProperty(TypeRules.MAX_WIDTH_TO_HEIGHT_RATIO);
+        if (!doubleIsInRange(whr, low, high)) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                     + "Your craft has an invalid width-to-height ratio! For crafts of type %s, width:height must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
-                    craftTypeName, rules.getMinWidthToHeightRatio(), rules.getMaxWidthToHeightRatio(), whr)));
+                    craftTypeName, low, high, whr)));
             return false;
         }
         return true;

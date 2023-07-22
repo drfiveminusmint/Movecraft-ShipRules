@@ -65,8 +65,8 @@ public class MovecraftShipRules extends JavaPlugin {
 
             try {
                 TypeRules rule = new TypeRules(f);
-                rules.putIfAbsent(rule.getApplicableType(), rule);
-            } catch (TypeRules.RulesNotFoundException e) {
+                rule.getApplicableTypes().forEach(type -> rules.putIfAbsent(type, rule));
+            } catch (IllegalArgumentException e) {
                 getLogger().log(Level.WARNING, e.getMessage());
             }
         }

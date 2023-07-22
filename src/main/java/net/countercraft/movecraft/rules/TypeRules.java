@@ -9,10 +9,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TypeRules {
-    private final CraftType applicableType;
+    private final Set<CraftType> applicableTypes;
     private final double maxLengthToWidthRatio;
     private final double minLengthToWidthRatio;
     private final double maxLengthToHeightRatio;
@@ -38,7 +41,26 @@ public class TypeRules {
             data = yaml.load(input);
             input.close();
         } catch (IOException e) {
-            throw new RulesNotFoundException("Error for file '" + f.getAbsolutePath() + "': IOException Encountered.");
+            throw new IllegalArgumentException("Error for file '" + f.getAbsolutePath() + "': IOException Encountered.");
+        }
+
+        applicableTypes = new HashSet<>();
+        Object section = data.get("applicableTypes");
+        if (!(section instanceof List))
+            throw new IllegalArgumentException("Unable to load applicable types in " + f.getName());
+
+        for (Object o : (List<?>) section) {
+            if (!(o instanceof String))
+                throw new IllegalArgumentException("Unable to load applicable type '" + o + "' in " + f.getName());
+
+            String s = (String) o;
+            try {
+                CraftType type = CraftManager.getInstance().getCraftTypeFromString(s);
+                applicableTypes.add(type);
+            } catch (TypeNotPresentException e) {
+                throw new IllegalArgumentException(
+                        "Could not parse type name '" + s + "' in file " + f.getName());
+            }
         }
 
         maxLengthToWidthRatio = doubleFromObject(data.getOrDefault("maxLengthToWidthRatio", -1.0));
@@ -59,14 +81,6 @@ public class TypeRules {
         maxEngineBlobs = (int) data.getOrDefault("minEngineBlobs", -1);
 
         requireCruiseSignAlignment = (boolean) data.getOrDefault("requireCruiseSignAlignment", false);
-
-        try {
-            this.applicableType = CraftManager.getInstance()
-                    .getCraftTypeFromString((String) data.get("applicableType"));
-        } catch (TypeNotPresentException e) {
-            throw new RulesNotFoundException(
-                    "Could not parse type name '" + data.get("applicableType") + "' for file " + f.getName());
-        }
     }
 
     private double doubleFromObject(Object obj) {
@@ -76,8 +90,8 @@ public class TypeRules {
         return (Double) obj;
     }
 
-    public CraftType getApplicableType() {
-        return applicableType;
+    public Set<CraftType> getApplicableTypes() {
+        return applicableTypes;
     }
 
     public double getMaxLengthToWidthRatio() {
@@ -138,11 +152,5 @@ public class TypeRules {
 
     public boolean getRequireCruiseSignAlignment() {
         return requireCruiseSignAlignment;
-    }
-
-    public static class RulesNotFoundException extends RuntimeException {
-        public RulesNotFoundException(String s) {
-            super(s);
-        }
     }
 }

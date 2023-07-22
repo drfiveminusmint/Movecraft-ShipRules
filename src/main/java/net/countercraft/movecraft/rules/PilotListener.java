@@ -74,7 +74,7 @@ public class PilotListener implements Listener {
         }
 
         if (direction != CruiseDirection.NONE) {
-            if (!checkDimensions(craft.getHitBox(), direction, rules, craft.getAudience())) {
+            if (!checkDimensions(craft.getHitBox(), direction, type, rules, craft.getAudience())) {
                 event.setCancelled(true);
                 return;
             }
@@ -95,7 +95,7 @@ public class PilotListener implements Listener {
         return compare <= upper || upper == -1.0;
     }
 
-    private boolean checkDimensions(HitBox box, CruiseDirection direction, TypeRules rules, Audience audience) {
+    private boolean checkDimensions(HitBox box, CruiseDirection direction, CraftType type, TypeRules rules, Audience audience) {
         if (box.isEmpty())
             return true;
 
@@ -115,7 +115,7 @@ public class PilotListener implements Listener {
             width = distanceX;
         }
 
-        String craftTypeName = rules.getApplicableType().getStringProperty(CraftType.NAME);
+        String craftTypeName = type.getStringProperty(CraftType.NAME);
 
         // check absolute dimensions
         if (!intIsInRange(length, rules.getMinAbsoluteLength(), rules.getMaxAbsoluteLength())) {

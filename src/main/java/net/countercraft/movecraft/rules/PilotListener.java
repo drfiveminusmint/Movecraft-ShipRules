@@ -48,7 +48,7 @@ public class PilotListener implements Listener {
             for (MovecraftLocation location : craft.getHitBox()) {
                 Block block = location.toBukkit(craft.getWorld()).getBlock();
                 if (!Tag.WALL_SIGNS.isTagged(block.getType()))
-                    return;
+                    continue;
 
                 BlockState state = block.getState();
                 if (!(state instanceof Sign))
@@ -61,7 +61,7 @@ public class PilotListener implements Listener {
 
                 BlockData data = sign.getBlockData();
                 if (!(data instanceof Directional))
-                    return;
+                    continue;
 
                 CruiseDirection currentDirection = CruiseDirection.fromBlockFace(((Directional) data).getFacing());
                 if (direction == CruiseDirection.NONE) {
@@ -162,19 +162,19 @@ public class PilotListener implements Listener {
 
         if (!doubleIsInRange(lwr, rules.getMinLengthToWidthRatio(), rules.getMaxLengthToWidthRatio())) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
-                    + "Your craft has an invalid length-to-width ratio! For crafts of type %s, length:width must be between %s and %s, but the ratio of your craft is %s.",
+                    + "Your craft has an invalid length-to-width ratio! For crafts of type %s, length:width must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
                     craftTypeName, rules.getMinLengthToWidthRatio(), rules.getMaxLengthToWidthRatio(), lwr)));
             return false;
         }
         if (!doubleIsInRange(lhr, rules.getMinLengthToHeightRatio(), rules.getMaxLengthToHeightRatio())) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
-                    + "Your craft has an invalid length-to-height ratio! For crafts of type %s, length:height must be between %s and %s, but the ratio of your craft is %s.",
+                    + "Your craft has an invalid length-to-height ratio! For crafts of type %s, length:height must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
                     craftTypeName, rules.getMinLengthToHeightRatio(), rules.getMaxLengthToHeightRatio(), lhr)));
             return false;
         }
         if (!doubleIsInRange(whr, rules.getMinWidthToHeightRatio(), rules.getMaxWidthToHeightRatio())) {
             audience.sendMessage(Component.text(String.format(ChatUtils.MOVECRAFT_COMMAND_PREFIX
-                    + "Your craft has an invalid width-to-height ratio! For crafts of type %s, width:height must be between %s and %s, but the ratio of your craft is %s.",
+                    + "Your craft has an invalid width-to-height ratio! For crafts of type %s, width:height must be between %.1f and %.1f, but the ratio of your craft is %.1f.",
                     craftTypeName, rules.getMinWidthToHeightRatio(), rules.getMaxWidthToHeightRatio(), whr)));
             return false;
         }

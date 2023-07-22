@@ -59,7 +59,7 @@ public class MovecraftShipRules extends JavaPlugin {
 
         // files should have type '.rules'
         for (File f : ruleFiles) {
-            if (!f.getName().endsWith(".rules"))
+            if (!f.getName().endsWith(".yml"))
                 continue;
 
             try {

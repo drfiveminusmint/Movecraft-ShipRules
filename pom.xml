@@ -6,7 +6,7 @@
     <groupId>net.countercraft</groupId>
 
     <artifactId>Movecraft-ShipRules</artifactId>
-    <version>1.a.1</version>
+    <version>1.0.0-alpha.1-SNAPSHOT</version>
 
     <build>
         <finalName>Movecraft-ShipRules</finalName>
@@ -51,30 +51,46 @@
         </resources>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>GitHub APDevTeam/Movecraft Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/APDevTeam/Movecraft</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!--Spigot-->
         <dependency>
         <groupId>org.spigotmc</groupId>
         <artifactId>spigot-api</artifactId>
-        <version>1.12.2-R0.1-SNAPSHOT</version>
+        <version>1.14.4-R0.1-SNAPSHOT</version>
         <scope>provided</scope>
         </dependency>
 
         <!--Movecraft-->
         <dependency>
-            <groupId>net.countercraft.movecraft</groupId>
-            <artifactId>Movecraft</artifactId>
+            <groupId>net.countercraft</groupId>
+            <artifactId>movecraft</artifactId>
             <version>LATEST</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../Movecraft/target/Movecraft.jar</systemPath>
+            <scope>provided</scope>
         </dependency>
+
+        <!--Annotations-->
         <dependency>
             <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
+            <artifactId>annotations-java5</artifactId>
             <version>RELEASE</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
-
-
 </project>

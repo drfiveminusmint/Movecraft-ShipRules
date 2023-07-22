@@ -1,0 +1,41 @@
+name: Java CI
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Movecraft-ShipRules
+        uses: actions/checkout@v3
+        with:
+          path: Movecraft-ShipRules
+          ref: main
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Cache Maven packages
+        id: cacheMain
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2
+          restore-keys: ${{ runner.os }}-m2
+
+      # Build Movecraft-ShipRules
+      - name: Build Movecraft-ShipRules
+        run: mvn -B package -T 1C --file Movecraft-ShipRules/pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stage jar
+        run: mkdir staging && cp Movecraft-ShipRules/target/Movecraft-ShipRules.jar staging
+      - name: Rename jar
+        run: mv staging/Movecraft-ShipRules.jar staging/Movecraft-ShipRules_$GITHUB_SHA.jar
+      - name: Upload jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: Movecraft-ShipRules_Dev-Build
+          path: staging/Movecraft-ShipRules_*.jar

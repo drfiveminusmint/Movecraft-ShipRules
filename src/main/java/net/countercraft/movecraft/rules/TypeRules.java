@@ -28,8 +28,6 @@ public class TypeRules {
     private final int minAbsoluteWidth;
     private final int maxAbsoluteHeight;
     private final int minAbsoluteHeight;
-    private final int maxEngineBlobs;
-    private final int minEngineBlobs;
     private final boolean requireCruiseSignAlignment;
 
     public TypeRules(File f) {
@@ -76,9 +74,6 @@ public class TypeRules {
         minAbsoluteLength = (int) data.getOrDefault("minAbsoluteLength", -1);
         maxAbsoluteWidth = (int) data.getOrDefault("maxAbsoluteWidth", -1);
         minAbsoluteWidth = (int) data.getOrDefault("minAbsoluteWidth", -1);
-
-        minEngineBlobs = (int) data.getOrDefault("minEngineBlobs", -1);
-        maxEngineBlobs = (int) data.getOrDefault("minEngineBlobs", -1);
 
         requireCruiseSignAlignment = (boolean) data.getOrDefault("requireCruiseSignAlignment", false);
     }
@@ -140,14 +135,6 @@ public class TypeRules {
 
     public int getMinAbsoluteHeight() {
         return minAbsoluteHeight;
-    }
-
-    public int getMaxEngineBlobs() {
-        return maxEngineBlobs;
-    }
-
-    public int getMinEngineBlobs() {
-        return minEngineBlobs;
     }
 
     public boolean getRequireCruiseSignAlignment() {

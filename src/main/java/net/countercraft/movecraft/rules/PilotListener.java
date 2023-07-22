@@ -69,6 +69,7 @@ public class PilotListener implements Listener {
                 } else if (direction != currentDirection && rules.getRequireCruiseSignAlignment()) {
                     craft.getAudience().sendMessage(Component.text(ChatUtils.MOVECRAFT_COMMAND_PREFIX
                             + "Detection failed: All cruise signs must face the same way."));
+                    event.setCancelled(true);
                 }
             }
         }

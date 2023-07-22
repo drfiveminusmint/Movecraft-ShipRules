@@ -1,7 +1,8 @@
 package net.countercraft.movecraft.rules;
 
 import net.countercraft.movecraft.craft.CraftManager;
-import net.countercraft.movecraft.craft.CraftType;
+import net.countercraft.movecraft.craft.type.CraftType;
+
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -29,15 +30,14 @@ public class TypeRules {
     private final boolean requireCruiseSignAlignment;
 
     public TypeRules(File f) {
-        //This code is cannibalized from the movecraft type code
-        final Map data;
+        // This code is cannibalized from the movecraft type code
+        final Map<Object, Object> data;
         try {
             InputStream input = new FileInputStream(f);
             Yaml yaml = new Yaml();
             data = yaml.load(input);
             input.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RulesNotFoundException("Error for file '" + f.getAbsolutePath() + "': IOException Encountered.");
         }
 
@@ -61,9 +61,11 @@ public class TypeRules {
         requireCruiseSignAlignment = (boolean) data.getOrDefault("requireCruiseSignAlignment", false);
 
         try {
-            this.applicableType = CraftManager.getInstance().getCraftTypeFromString((String) data.get("applicableType"));
+            this.applicableType = CraftManager.getInstance()
+                    .getCraftTypeFromString((String) data.get("applicableType"));
         } catch (TypeNotPresentException e) {
-            throw new RulesNotFoundException("Could not parse type name '" + data.get("applicableType") + "' for file " + f.getName());
+            throw new RulesNotFoundException(
+                    "Could not parse type name '" + data.get("applicableType") + "' for file " + f.getName());
         }
     }
 

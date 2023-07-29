@@ -1,10 +1,10 @@
-  name: Movecraft-ShipRules
-  main: net.countercraft.movecraft.rules.MovecraftShipRules
-  version: ALPHA-1.0
-  api-version: 1.12
-  author: a4bde
-  depend: [Movecraft]
-  permissions:
-    movecraft.rules.bypass:
-      description: Allows a player to bypass ship rules and pilot an illegal ship.
-      default: false
+name: Movecraft-ShipRules
+main: net.countercraft.movecraft.rules.MovecraftShipRules
+version: ${project.version}
+api-version: 1.16
+author: a4bde, TylerS1066
+depend: [Movecraft]
+permissions:
+  movecraft.rules.bypass:
+    description: Allows a player to bypass ship rules and pilot an illegal ship.
+    default: false

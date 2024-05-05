@@ -4,6 +4,7 @@ import net.countercraft.movecraft.CruiseDirection;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.PilotedCraft;
+import net.countercraft.movecraft.craft.SubCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
 import net.countercraft.movecraft.events.CraftDetectEvent;
 import net.countercraft.movecraft.libs.net.kyori.adventure.audience.Audience;
@@ -30,6 +31,12 @@ public class PilotListener implements Listener {
         if (craft instanceof PilotedCraft
                 && ((PilotedCraft) craft).getPilot().hasPermission("movecraft.rules.bypass"))
             return;
+        if (craft instanceof SubCraft) {
+            Craft parent = ((SubCraft) craft).getParent();
+            if (parent instanceof PilotedCraft
+                    && ((PilotedCraft) parent).getPilot().hasPermission("movecraft.rules.bypass"))
+                return;
+        }
 
         CraftType type = craft.getType();
 

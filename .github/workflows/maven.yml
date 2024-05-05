@@ -10,7 +10,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: Movecraft-ShipRules
-          ref: main
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:

@@ -4,6 +4,7 @@ import net.countercraft.movecraft.CruiseDirection;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.PilotedCraft;
+import net.countercraft.movecraft.craft.SubCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
 import net.countercraft.movecraft.events.CraftDetectEvent;
 import net.countercraft.movecraft.libs.net.kyori.adventure.audience.Audience;
@@ -27,9 +28,15 @@ public class PilotListener implements Listener {
         Craft craft = event.getCraft();
 
         // Ignore all of this if the player has permission to bypass the rules
-        if (!(craft instanceof PilotedCraft)
+        if (craft instanceof PilotedCraft
                 && ((PilotedCraft) craft).getPilot().hasPermission("movecraft.rules.bypass"))
             return;
+        if (craft instanceof SubCraft) {
+            Craft parent = ((SubCraft) craft).getParent();
+            if (parent instanceof PilotedCraft
+                    && ((PilotedCraft) parent).getPilot().hasPermission("movecraft.rules.bypass"))
+                return;
+        }
 
         CraftType type = craft.getType();
 
@@ -41,6 +48,19 @@ public class PilotListener implements Listener {
         // find a cruise sign.
         if (type.getBoolProperty(CraftType.CRUISE_ON_PILOT)) {
             direction = craft.getCruiseDirection();
+            if (direction == null) {
+                // Movecraft hasn't yet set the direction based on the pilot, let's do that
+                // ourselves.
+                BlockState state = event.getStartLocation().toBukkit(craft.getWorld()).getBlock().getState();
+                if ((state instanceof Sign)) {
+                    Sign sign = (Sign) state;
+                    if (sign.getBlockData() instanceof Directional) {
+                        direction = CruiseDirection.fromBlockFace(((Directional) sign.getBlockData()).getFacing());
+                    } else {
+                        direction = CruiseDirection.NONE;
+                    }
+                }
+            }
         } else {
             boolean requireCruiseSignAlignment = type.getBoolProperty(TypeRules.REQUIRE_CRUISE_SIGN_ALIGNMENT);
             for (MovecraftLocation location : craft.getHitBox()) {

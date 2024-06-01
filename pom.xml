@@ -6,7 +6,7 @@
     <groupId>net.countercraft</groupId>
 
     <artifactId>Movecraft-ShipRules</artifactId>
-    <version>1.0.0-alpha.1-SNAPSHOT</version>
+    <version>1.0.0-beta-1</version>
 
     <build>
         <finalName>Movecraft-ShipRules</finalName>

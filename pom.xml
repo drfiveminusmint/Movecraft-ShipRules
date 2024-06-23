@@ -53,29 +53,18 @@
 
     <repositories>
         <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>github</id>
-            <name>GitHub APDevTeam/Movecraft Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/APDevTeam/Movecraft</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>papermc-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
 
     <dependencies>
-        <!--Spigot-->
+        <!--Paper-->
         <dependency>
-        <groupId>org.spigotmc</groupId>
-        <artifactId>spigot-api</artifactId>
-        <version>1.14.4-R0.1-SNAPSHOT</version>
-        <scope>provided</scope>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--Movecraft-->
@@ -83,7 +72,8 @@
             <groupId>net.countercraft</groupId>
             <artifactId>movecraft</artifactId>
             <version>LATEST</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../Movecraft/Movecraft/build/libs/Movecraft.jar</systemPath>
         </dependency>
 
         <!--Annotations-->

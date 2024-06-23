@@ -7,10 +7,10 @@ import net.countercraft.movecraft.craft.PilotedCraft;
 import net.countercraft.movecraft.craft.SubCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
 import net.countercraft.movecraft.events.CraftDetectEvent;
-import net.countercraft.movecraft.libs.net.kyori.adventure.audience.Audience;
-import net.countercraft.movecraft.libs.net.kyori.adventure.text.Component;
 import net.countercraft.movecraft.util.ChatUtils;
 import net.countercraft.movecraft.util.hitboxes.HitBox;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Tag;
